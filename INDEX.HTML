@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spectral Studio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at center, #0a0a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+      direction: rtl;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* تأثير النجوم المتحركة */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* تأثير التوهج المتحرك */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      filter: blur(40px);
+      animation: float-glow 6s ease-in-out infinite;
+    }
+
+    .glow-orb.blue {
+      background: radial-gradient(circle, #00d4ff 0%, #1e3a8a 70%);
+      box-shadow: 0 0 60px #00d4ff, 0 0 120px #1e3a8a;
+    }
+
+    .glow-orb.purple {
+      background: radial-gradient(circle, #a855f7 0%, #581c87 70%);
+      box-shadow: 0 0 60px #a855f7, 0 0 120px #581c87;
+    }
+
+    @keyframes float-glow {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+      33% { transform: translate(100px, -50px) scale(1.2); opacity: 0.9; }
+      66% { transform: translate(-50px, 80px) scale(0.8); opacity: 0.5; }
+    }
+
+    /* تأثير الجسيمات المتساقطة */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(0, 212, 255, 0.3);
+      border-radius: 50%;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a3e 0%, #000814 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+      border-bottom: 2px solid #00d4ff;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.1) 50%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    header h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 
+        0 0 10px #00d4ff,
+        0 0 20px #00d4ff,
+        0 0 40px #00d4ff,
+        2px 2px 8px rgba(0,0,0,0.8);
+      position: relative;
+      z-index: 10;
+      animation: pulse-glow 2s ease-in-out infinite alternate;
+      background: linear-gradient(45deg, #00d4ff, #a855f7, #00d4ff);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 3s ease infinite, pulse-glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes pulse-glow {
+      0% { text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 40px #00d4ff; }
+      100% { text-shadow: 0 0 20px #00d4ff, 0 0 30px #00d4ff, 0 0 60px #00d4ff; }
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: #a0a0a0;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 10;
+      animation: fadeInUp 1s ease-out 0.5s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 4rem auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.8rem;
+      color: #00d4ff;
+      margin-bottom: 4rem;
+      text-shadow: 
+        0 0 10px #00d4ff,
+        0 0 20px #00d4ff;
+      animation: pulse-glow 3s ease-in-out infinite alternate;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+      border-radius: 3px;
+    }
+
+    .maps-grid {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 5rem;
+    }
+
+    .map-card {
+      background: linear-gradient(135deg, rgba(26, 26, 62, 0.95) 0%, rgba(0, 8, 20, 0.95) 100%);
+      border-radius: 30px;
+      padding: 3rem;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 212, 255, 0.2),
+        inset 0 0 30px rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      backdrop-filter: blur(25px);
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      max-width: 800px;
+    }
+
+    .map-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
+      transition: left 0.8s ease;
+    }
+
+    .map-card::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00d4ff, #a855f7, #00d4ff);
+      border-radius: 32px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-20px) scale(1.03);
+      box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.8),
+        0 0 60px rgba(0, 212, 255, 0.5),
+        inset 0 0 40px rgba(0, 212, 255, 0.2);
+    }
+
+    .map-card:hover::before {
+      left: 100%;
+    }
+
+    .map-card:hover::after {
+      opacity: 1;
+    }
+
+    .map-header {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .map-card img {
+      width: 250px;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 25px;
+      box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.6),
+        0 0 25px rgba(0, 212, 255, 0.4);
+      border: 3px solid rgba(0, 212, 255, 0.5);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+
+    .map-card img::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .map-card:hover img {
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(0, 212, 255, 0.7);
+      transform: scale(1.08) rotateY(5deg);
+      border-color: #00d4ff;
+    }
+
+    .map-title h3 {
+      font-size: 2.3rem;
+      color: #00d4ff;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 0 15px #00d4ff;
+      position: relative;
+    }
+
+    .status-badge {
+      padding: 0.8rem 2rem;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 8px currentColor;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .status-badge:hover::before {
+      left: 100%;
+    }
+
+    .status-available {
+      background: linear-gradient(45deg, #00ff88, #00d4ff);
+      color: #000;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+    }
+
+    .status-development {
+      background: linear-gradient(45deg, #ff6b35, #f7931e);
+      color: #fff;
+      box-shadow: 0 0 25px rgba(255, 107, 53, 0.6);
+      animation: pulse-status 2s infinite;
+    }
+
+    @keyframes pulse-status {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .map-details p {
+      margin: 2rem 0;
+      line-height: 1.9;
+      color: #e8e8e8;
+      text-align: justify;
+      font-size: 1.15rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .map-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.8rem;
+      margin: 2.5rem 0;
+      padding: 2rem;
+      background: rgba(0, 212, 255, 0.12);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      box-shadow: inset 0 0 30px rgba(0, 212, 255, 0.15);
+      position: relative;
+    }
+
+    .map-info::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.05) 50%, transparent 70%);
+      border-radius: 20px;
+      animation: info-shimmer 4s infinite;
+    }
+
+    @keyframes info-shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .info-item {
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .info-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+      border-color: #00d4ff;
+    }
+
+    .info-item:hover::before {
+      transform: translateX(100%);
+    }
+
+    .info-item .label {
+      font-size: 1rem;
+      color: #b0b0b0;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .info-item .value {
+      font-weight: bold;
+      color: #00d4ff;
+      font-size: 1.2rem;
+      text-shadow: 0 0 8px #00d4ff;
+    }
+
+    .download-section {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .download-btn {
+      display: inline-block;
+      padding: 1.5rem 3rem;
+      background: linear-gradient(45deg, #00ff88, #00d4ff);
+      color: #000;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 1.3rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 
+        0 15px 30px rgba(0, 255, 136, 0.4),
+        0 0 30px rgba(0, 212, 255, 0.4);
+      border: none;
+      cursor: pointer;
+      text-shadow: 0 0 8px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 
+        0 20px 40px rgba(0, 255, 136, 0.6),
+        0 0 40px rgba(0, 212, 255, 0.6);
+    }
+
+    .download-btn:hover::before {
+      left: 100%;
+    }
+
+    .download-btn:disabled {
+      background: linear-gradient(45deg, #4a4a4a, #2a2a2a);
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .download-btn:disabled:hover {
+      transform: none;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .team-section {
+      background: linear-gradient(135deg, rgba(26, 26, 62, 0.95) 0%, rgba(0, 8, 20, 0.95) 100%);
+      border-radius: 30px;
+      padding: 4rem;
+      margin: 4rem 0;
+      text-align: center;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(168, 85, 247, 0.4);
+      border: 1px solid rgba(168, 85, 247, 0.6);
+      backdrop-filter: blur(25px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+      animation: team-shimmer 5s infinite;
+    }
+
+    @keyframes team-shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .team-title {
+      font-size: 2.5rem;
+      color: #a855f7;
+      margin-bottom: 3rem;
+      text-shadow: 0 0 20px #a855f7;
+      position: relative;
+      z-index: 10;
+    }
+
+    .team-title::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #a855f7, transparent);
+      border-radius: 3px;
+    }
+
+    .team-members {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 10;
+    }
+
+    .team-member {
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .team-member:hover {
+      transform: translateY(-15px) scale(1.05);
+    }
+
+    .member-avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(45deg, #a855f7, #00d4ff);
+      border-radius: 50%;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: white;
+      font-weight: bold;
+      box-shadow: 
+        0 0 40px rgba(168, 85, 247, 0.6),
+        0 15px 30px rgba(0, 0, 0, 0.6);
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .member-avatar::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: top 0.6s ease;
+    }
+
+    .team-member:hover .member-avatar::before {
+      top: 100%;
+    }
+
+    .member-name {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #00d4ff;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 0 15px #00d4ff;
+    }
+
+    .member-role {
+      font-size: 1.1rem;
+      color: #b0b0b0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* تحسين الاستجابة */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.5rem;
+      }
+      
+      .section-title {
+        font-size: 2.2rem;
+      }
+      
+      .map-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+      }
+      
+      .map-card img {
+        width: 200px;
+        height: 140px;
+      }
+      
+      .team-members {
+        gap: 3rem;
+      }
+      
+      .team-member {
+        margin-bottom: 2rem;
+      }
+      
+      .member-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+      }
+      
+      .map-card,
+      .team-section {
+        margin: 2rem 1rem;
+        padding: 2rem;
+      }
+      
+      main {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 2rem 1rem;
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .section-title {
+        font-size: 1.8rem;
+      }
+      
+      .map-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .team-members {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+    }
+
+    /* تأثيرات إضافية للتحسين */
+    .floating-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .floating-element {
+      position: absolute;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 50%;
+      animation: float-random 10s linear infinite;
+    }
+
+    @keyframes float-random {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- خلفية النجوم المتحركة -->
+  <div class="stars"></div>
+  
+  <!-- العناصر المتساقطة -->
+  <div class="particles"></div>
+  <div class="floating-elements"></div>
+  
+  <!-- كرات التوهج المتحركة -->
+  <div class="glow-orb blue" style="top: 20%; left: 10%; width: 150px; height: 150px; animation-delay: 0s;"></div>
+  <div class="glow-orb purple" style="top: 60%; right: 15%; width: 120px; height: 120px; animation-delay: 2s;"></div>
+  <div class="glow-orb blue" style="top: 80%; left: 70%; width: 100px; height: 100px; animation-delay: 4s;"></div>
+  
+  <header>
+    <h1>⚡ Spectral Studio ⚡</h1>
+    <div class="subtitle">Advanced Minecraft Map Development Studio</div>
+  </header>
+
+  <main>
+    <h2 class="section-title">Available Maps</h2>
+    
+    <div class="maps-grid">
+      <div class="map-card">
+        <div class="map-header">
+          <img src="IMG/Lost_Souls_1998.jpg" alt="Lost Souls Map" />
+          <div class="map-title">
+            <h3>Lost Souls</h3>
+            <div class="status-badge status-development">🔨 Coming Very Soon</div>
+          </div>
+        </div>
+        
+        <div class="map-details">
+          <p>
+            Lost Souls is a Minecraft Horror map where you are stuck in an abandoned facility deep in the caves with one goal. To escape
+            You will have square adventures inside the abandoned cave against the warden and whatever is in there. solve puzzles. 
+            use your brain.discorver secrets. And..... Don't.....get.....caught.....
+          </p>
+          
+          <div class="map-info">
+            <div class="info-item">
+              <div class="label">Genre</div>
+              <div class="value">🌑 Horror + Adventure</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Status</div>
+              <div class="value">⚡ Advanced Development</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Progress</div>
+              <div class="value">📊 78%</div>
+            </div>
+            <div class="info-item">
+              <div class="label">Expected Release</div>
+              <div class="value">🗓️  Very Soon</div>
+            </div>
+          </div>
+          
+          <div class="download-section">
+            <button class="download-btn" disabled>
+              ⏳ Very Soon ⏳
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-section">
+      <h3 class="team-title">⚡ Development Team⚡</h3>
+      <div class="team-members">
+        <div class="team-member">
+          <div class="member-avatar">M</div>
+          <div class="member-name">MON32</div>
+          <div class="member-role">⚡  Developer</div>
+        </div>
+        <div class="team-member">
+          <div class="member-avatar">F</div>
+          <div class="member-name">foxXD</div>
+          <div class="member-role">⚡ Developer</div>
+        </div>
+        <div class="team-member">
+          <div class="member-avatar"><img src="IMG/char_1 (2).png" alt=""></div>
+          <div class="member-name">Mohamed_two</div>
+          <div class="member-role">⚡ Developer</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // إنشاء النجوم المتحركة المحسنة
+    function createStars() {
+      const starsContainer = document.querySelector('.stars');
+      const numberOfStars = 150;
+      
+      for (let i = 0; i < numberOfStars; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = Math.random() * 4 + 1 + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (Math.random() * 4 + 2) + 's';
+        starsContainer.appendChild(star);
+      }
+    }
+
+    // إنشاء الجسيمات المتساقطة
+    function createParticles() {
+      const particlesContainer = document.querySelector('.particles');
+      const numberOfParticles = 25;
+      
+      for (let i = 0; i < numberOfParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.width = Math.random() * 6 + 2 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.animationDuration = (Math.random() * 8 + 5) + 's';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // إنشاء العناصر العائمة
+    function createFloatingElements() {
+      const container = document.querySelector('.floating-elements');
+      const numberOfElements = 15;
+      
+      for (let i = 0; i < numberOfElements; i++) {
+        const element = document.createElement('div');
+        element.className = 'floating-element';
+        element.style.left = Math.random() * 100 + '%';
+        element.style.width = Math.random() * 8 + 3 + 'px';
+        element.style.height = element.style.width;
+        element.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        element.style.animationDelay = Math.random() * 10 + 's';
+        container.appendChild(element);
+      }
+    }
+
+    // تأثيرات تفاعلية محسنة للبطاقات
+    document.addEventListener('DOMContentLoaded', function() {
+      createStars();
+      createParticles();
+      createFloatingElements();
+      
+      const mapCards = document.querySelectorAll('.map-card');
+      
+      mapCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-20px) scale(1.03)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+        
+        // تأثير تتبع المؤشر
+        card.addEventListener('mousemove', function(e) {
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = (y - centerY) / 10;
+          const rotateY = (centerX - x) / 10;
+          
+          this.style.transform = `translateY(-20px) scale(1.03) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+      });
+      
+      // تأثير المؤشر للكرات المتوهجة المحسن
+      const glowOrbs = document.querySelectorAll('.glow-orb');
+      document.addEventListener('mousemove', function(e) {
+        glowOrbs.forEach((orb, index) => {
+          const speed = (index + 1) * 0.008;
+          const x = (e.clientX - window.innerWidth / 2) * speed;
+          const y = (e.clientY - window.innerHeight / 2) * speed;
+          orb.style.transform = `translate(${x}px, ${y}px)`;
+        });
+      });
+      
+      // تأثيرات التمرير
+      window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = scrolled * 0.5;
+        
+        document.querySelector('.stars').style.transform = `translateY(${parallax}px)`;
+        
+        // تأثير الكشف التدريجي للعناصر
+        const elements = document.querySelectorAll('.map-card, .team-section, .section-title');
+        elements.forEach(element => {
+          const elementTop = element.offsetTop;
+          const elementHeight = element.offsetHeight;
+          const windowHeight = window.innerHeight;
+          
+          if (scrolled + windowHeight > elementTop + elementHeight / 4) {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          }
+        });
+      });
+      
+      // تحريك العناصر بناءً على موقع المؤشر
+      document.addEventListener('mousemove', function(e) {
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+        
+        // تحريك النجوم
+        const stars = document.querySelectorAll('.star');
+        stars.forEach((star, index) => {
+          const speed = (index % 3 + 1) * 0.5;
+          const x = (mouseX - 0.5) * speed;
+          const y = (mouseY - 0.5) * speed;
+          star.style.transform = `translate(${x}px, ${y}px) scale(${star.style.width})`;
+        });
+      });
+      
+      // تأثيرات الكتابة المتحركة
+      function typeWriter(element, text, speed = 50) {
+        let i = 0;
+        element.innerHTML = '';
+        function typing() {
+          if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+          }
+        }
+        typing();
+      }
+      
+      // تطبيق تأثير الكتابة على العنوان الفرعي
+      const subtitle = document.querySelector('.subtitle');
+      if (subtitle) {
+        const originalText = subtitle.textContent;
+        setTimeout(() => {
+          typeWriter(subtitle, originalText, 100);
+        }, 1000);
+      }
+      
+      // تأثيرات الضوء المتحرك
+      function createLightEffect() {
+        const lightEffects = document.querySelectorAll('.map-card, .team-section');
+        lightEffects.forEach(element => {
+          element.addEventListener('mouseenter', function() {
+            const light = document.createElement('div');
+            light.style.position = 'absolute';
+            light.style.width = '100px';
+            light.style.height = '100px';
+            light.style.background = 'radial-gradient(circle, rgba(0,212,255,0.3) 0%, transparent 70%)';
+            light.style.borderRadius = '50%';
+            light.style.pointerEvents = 'none';
+            light.style.transition = 'all 0.3s ease';
+            this.appendChild(light);
+            
+            this.addEventListener('mousemove', function(e) {
+              const rect = this.getBoundingClientRect();
+              const x = e.clientX - rect.left - 50;
+              const y = e.clientY - rect.top - 50;
+              light.style.left = x + 'px';
+              light.style.top = y + 'px';
+            });
+            
+            this.addEventListener('mouseleave', function() {
+              if (light && light.parentNode) {
+                light.parentNode.removeChild(light);
+              }
+            });
+          });
+        });
+      }
+      
+      createLightEffect();
+      
+      // إضافة تأثيرات الصوت (محاكاة)
+      const interactiveElements = document.querySelectorAll('.download-btn, .map-card, .team-member');
+      interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+          // محاكاة تأثير صوتي بصري
+          this.style.filter = 'brightness(1.1) saturate(1.2)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+          this.style.filter = 'none';
+        });
+      });
+      
+      // تأثير النبض للعناصر المهمة
+      function pulseEffect() {
+        const pulseElements = document.querySelectorAll('.status-development, .section-title');
+        pulseElements.forEach(element => {
+          setInterval(() => {
+            element.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+              element.style.transform = 'scale(1)';
+            }, 200);
+          }, 3000);
+        });
+      }
+      
+      pulseEffect();
+      
+      // تحسين الأداء - تقليل التأثيرات على الشاشات الصغيرة
+      if (window.innerWidth <= 768) {
+        document.querySelectorAll('.glow-orb').forEach(orb => {
+          orb.style.display = 'none';
+        });
+        document.querySelector('.particles').style.display = 'none';
+        document.querySelector('.floating-elements').style.display = 'none';
+      }
+      
+      // إضافة تأثير التحميل التدريجي
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.map-card, .team-member, .info-item').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>
