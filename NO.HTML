@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KaliTrainer Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #f0f6fc;
+      direction: ltr;
+    }
+    header {
+      background: #161b22;
+      padding: 12px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 2px solid #30363d;
+    }
+    .lang-switch {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    .screen { display: none; padding: 20px; animation: fadeIn 0.3s; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    h2, h3 { color: #58a6ff; margin-top: 10px; }
+    button {
+      background: #238636;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 6px;
+      font-size: 16px;
+    }
+    button:hover { background: #2ea043; }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+    .stage-btn {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #21262d;
+      border: 1px solid #30363d;
+      font-size: 16px;
+    }
+    .stage-btn:hover { background: #30363d; }
+    .quiz-item {
+      background: #161b22;
+      border: 1px solid #30363d;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #30363d;
+      border-radius: 5px;
+      background: #0d1117;
+      color: #f0f6fc;
+      font-size: 15px;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    /* ✅ تحسين العرض على الهواتف */
+    @media (max-width: 600px) {
+      header { font-size: 18px; padding: 10px; }
+      button { width: 100%; font-size: 14px; margin: 5px 0; }
+      .stage-btn { font-size: 14px; padding: 12px; }
+      .quiz-item { font-size: 14px; padding: 10px; }
+      input[type="text"] { font-size: 14px; }
+      textarea { height: 180px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<header id="appTitle">KaliTrainer - eJPT & OSCP Training</header>
+<div class="lang-switch">
+  <button onclick="switchLang('en')">EN</button>
+  <button onclick="switchLang('ar')">AR</button>
+</div>
+
+<!-- Home -->
+<div id="home" class="screen active">
+  <h2 id="welcomeText">Welcome</h2>
+  <p id="progressLabel">Overall Progress</p>
+  <progress id="progressBar" value="0" max="100"></progress>
+  <div id="stages"></div>
+</div>
+
+<!-- Stage -->
+<div id="stage" class="screen">
+  <h2 id="stageTitle"></h2>
+  <button id="btnVideos" onclick="openVideos()">📺 Videos</button>
+  <button id="btnQuizzes" onclick="openQuizzes()">📝 Quizzes</button>
+  <button id="btnTerminal" onclick="showScreen('terminal')">💻 Terminal</button>
+  <button id="btnBack1" onclick="showScreen('home')">⬅ Back</button>
+</div>
+
+<!-- Videos -->
+<div id="videos" class="screen">
+  <h2 id="videoListTitle">Video List</h2>
+  <div id="videoList"></div>
+  <button id="btnBack2" onclick="showScreen('stage')">⬅ Back</button>
+</div>
+
+<!-- Quizzes -->
+<div id="quiz" class="screen">
+  <h2 id="quizTitle"></h2>
+  <div id="quizBox"></div>
+  <button id="btnCheck" onclick="checkAnswers()">✅ Check Answers</button>
+  <button id="btnBack3" onclick="showScreen('stage')">⬅ Back</button>
+</div>
+
+<!-- Terminal -->
+<div id="terminal" class="screen">
+  <h2 id="terminalTitle">KaliTrainer Terminal</h2>
+  <textarea id="terminalOutput" readonly>KaliTrainer terminal simulation</textarea><br>
+  <input id="cmdInput" placeholder="Type a command">
+  <button id="btnRun" onclick="runCommand()">Run</button>
+  <button id="btnBack4" onclick="showScreen('stage')">⬅ Back</button>
+</div>
+
+<script>
+let lang = "en"; // الافتراضي
+
+// ترجمات الواجهة
+const translations = {
+  en: {
+    appTitle: "KaliTrainer - eJPT & OSCP Training",
+    welcome: "Welcome",
+    progress: "Overall Progress",
+    videos: "📺 Videos",
+    quizzes: "📝 Quizzes",
+    terminal: "💻 Terminal",
+    back: "⬅ Back",
+    check: "✅ Check Answers",
+    videoList: "Video List",
+    terminalTitle: "KaliTrainer Terminal",
+    run: "Run",
+    score: "Score"
+  },
+  ar: {
+    appTitle: "KaliTrainer - تدريب eJPT و OSCP",
+    welcome: "مرحباً",
+    progress: "نسبة التقدم",
+    videos: "📺 الفيديوهات",
+    quizzes: "📝 الاختبارات",
+    terminal: "💻 المحاكي",
+    back: "⬅ رجوع",
+    check: "✅ تحقق من الإجابات",
+    videoList: "قائمة الفيديوهات",
+    terminalTitle: "محاكي كالي",
+    run: "تشغيل",
+    score: "نتيجتك"
+  }
+};
+
+// المراحل مع أسئلة باللغتين
+const stages = [
+  {
+    id:"networking",
+    title:{en:"Stage 1: Networking", ar:"المرحلة 1: الشبكات"},
+    videos:["https://www.youtube.com/watch?v=dVbS8CZMSvE"],
+    quizzes:{
+      easy:[
+        {q:{en:"What is the common gateway address?", ar:"ما هو عنوان البوابة الافتراضية؟"}, a:"192.168.1.1"},
+        {q:{en:"Name a popular port scanning tool?", ar:"اذكر أداة شائعة لفحص المنافذ؟"}, a:"nmap"}
+      ]
+    }
+  },
+  {
+    id:"bash",
+    title:{en:"Stage 2: Bash/Linux", ar:"المرحلة 2: باش / لينكس"},
+    videos:["https://www.youtube.com/watch?v=aetH-d_bpJs"],
+    quizzes:{
+      easy:[
+        {q:{en:"Command to display first 10 lines of log.txt", ar:"الأمر لإظهار أول 10 أسطر من log.txt"}, a:"head -n 10 log.txt"}
+      ]
+    }
+  },
+  {
+    id:"ejpt",
+    title:{en:"Stage 3: eJPT", ar:"المرحلة 3: eJPT"},
+    videos:["https://www.youtube.com/watch?v=-obUDTqKhuY"],
+    quizzes:{
+      easy:[
+        {q:{en:"Common abbreviation of port scanning tool?", ar:"الاختصار الشائع لأداة فحص المنافذ؟"}, a:"nmap"}
+      ]
+    }
+  },
+  {
+    id:"oscp",
+    title:{en:"Stage 4: OSCP", ar:"المرحلة 4: OSCP"},
+    videos:["https://www.youtube.com/watch?v=bc8JcenrvB0"],
+    quizzes:{
+      easy:[
+        {q:{en:"What does OSCP stand for?", ar:"ماذا تعني شهادة OSCP؟"}, a:"offensive security certified professional"}
+      ]
+    }
+  }
+];
+
+let progress = JSON.parse(localStorage.getItem("progress")||"{}");
+let currentStage = null;
+
+function switchLang(l){
+  lang = l;
+  const t = translations[l];
+  document.getElementById("appTitle").innerText = t.appTitle;
+  document.getElementById("welcomeText").innerText = t.welcome;
+  document.getElementById("progressLabel").innerText = t.progress;
+  document.getElementById("btnVideos").innerText = t.videos;
+  document.getElementById("btnQuizzes").innerText = t.quizzes;
+  document.getElementById("btnTerminal").innerText = t.terminal;
+  document.getElementById("btnBack1").innerText = t.back;
+  document.getElementById("btnBack2").innerText = t.back;
+  document.getElementById("btnBack3").innerText = t.back;
+  document.getElementById("btnBack4").innerText = t.back;
+  document.getElementById("btnCheck").innerText = t.check;
+  document.getElementById("videoListTitle").innerText = t.videoList;
+  document.getElementById("terminalTitle").innerText = t.terminalTitle;
+  document.getElementById("btnRun").innerText = t.run;
+  document.body.style.direction = (l==="ar")?"rtl":"ltr";
+  loadStages();
+}
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(id==="home") updateProgress();
+}
+
+function loadStages(){
+  const box=document.getElementById("stages"); box.innerHTML="";
+  stages.forEach(st=>{
+    let b=document.createElement("div");
+    b.className="stage-btn"; b.textContent=st.title[lang];
+    b.onclick=()=>{currentStage=st; document.getElementById("stageTitle").innerText=st.title[lang]; showScreen("stage");};
+    box.appendChild(b);
+  });
+}
+
+function openVideos(){
+  const list=document.getElementById("videoList"); list.innerHTML="";
+  currentStage.videos.forEach(v=>{
+    let a=document.createElement("a"); a.href=v; a.target="_blank"; a.textContent=v;
+    list.appendChild(a); list.appendChild(document.createElement("br"));
+  });
+  showScreen("videos");
+}
+
+function openQuizzes(){
+  const box=document.getElementById("quizBox"); box.innerHTML="";
+  document.getElementById("quizTitle").innerText=currentStage.title[lang]+" - "+translations[lang].quizzes;
+  for(const diff in currentStage.quizzes){
+    let h=document.createElement("h3"); h.innerText=diff.toUpperCase(); box.appendChild(h);
+    currentStage.quizzes[diff].forEach(q=>{
+      let div=document.createElement("div"); div.className="quiz-item";
+      div.innerHTML=`<label>${q.q[lang]}</label><input data-answer="${q.a}" type="text">`;
+      box.appendChild(div);
+    });
+  }
+  showScreen("quiz");
+}
+
+function checkAnswers(){
+  let inputs=document.querySelectorAll("#quizBox input"); let correct=0;
+  inputs.forEach(inp=>{ if(inp.value.trim().toLowerCase()===inp.dataset.answer.toLowerCase()) correct++; });
+  alert(`${translations[lang].score}: ${correct}/${inputs.length}`);
+  progress[currentStage.id]=correct; localStorage.setItem("progress",JSON.stringify(progress));
+  updateProgress();
+}
+
+function updateProgress(){
+  let total=0, done=0;
+  stages.forEach(s=>{let qs=Object.values(s.quizzes).flat().length; total+=qs; done+=progress[s.id]||0;});
+  document.getElementById("progressBar").value=(done/total*100)||0;
+}
+
+function runCommand(){
+  let cmd=document.getElementById("cmdInput").value.trim(); let out="";
+  if(cmd.startsWith("ifconfig")) out="eth0: inet 192.168.1.50 ...";
+  else if(cmd.startsWith("nmap")) out="22/tcp open ssh\n80/tcp open http";
+  else out=(lang==="ar"?"الأمر غير معروف":"Command not recognized");
+  document.getElementById("terminalOutput").value+=`\n$ ${cmd}\n${out}`;
+  document.getElementById("cmdInput").value="";
+}
+
+loadStages();
+switchLang("en"); // البداية إنجليزي
+</script>
+</body>
+</html>
